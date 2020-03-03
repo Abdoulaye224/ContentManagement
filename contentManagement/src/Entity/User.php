@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -60,9 +61,28 @@ class User implements UserInterface
      */
     private $roles;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="user")
+     */
+    private $comment;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="user")
+     */
+    private $post;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\SocialNetwork", mappedBy="user")
+     */
+    private $socialNetworks;
+
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
+        $this->comment = new ArrayCollection();
+        $this->post = new ArrayCollection();
+        $this->socialNetworks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,4 +188,98 @@ class User implements UserInterface
     public function eraseCredentials()
     {
     }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComment(): Collection
+    {
+        return $this->comment;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comment->contains($comment)) {
+            $this->comment[] = $comment;
+            $comment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comment->contains($comment)) {
+            $this->comment->removeElement($comment);
+            // set the owning side to null (unless already changed)
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Post[]
+     */
+    public function getPost(): Collection
+    {
+        return $this->post;
+    }
+
+    public function addPost(Post $post): self
+    {
+        if (!$this->post->contains($post)) {
+            $this->post[] = $post;
+            $post->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): self
+    {
+        if ($this->post->contains($post)) {
+            $this->post->removeElement($post);
+            // set the owning side to null (unless already changed)
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SocialNetwork[]
+     */
+    public function getSocialNetworks(): Collection
+    {
+        return $this->socialNetworks;
+    }
+
+    public function addSocialNetwork(SocialNetwork $socialNetwork): self
+    {
+        if (!$this->socialNetworks->contains($socialNetwork)) {
+            $this->socialNetworks[] = $socialNetwork;
+            $socialNetwork->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSocialNetwork(SocialNetwork $socialNetwork): self
+    {
+        if ($this->socialNetworks->contains($socialNetwork)) {
+            $this->socialNetworks->removeElement($socialNetwork);
+            // set the owning side to null (unless already changed)
+            if ($socialNetwork->getUser() === $this) {
+                $socialNetwork->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
